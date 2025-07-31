@@ -1,0 +1,174 @@
+<form [formGroup]="dynamicForm" (ngSubmit)="onSubmit()" class="dynamic-form" novalidate>
+  <div class="form-fields">
+    <div
+      *ngFor="let field of fields; trackBy: trackByFieldKey"
+      class="form-field"
+      [class.has-error]="isFieldInvalid(field.key)"
+    >
+      <label
+        [for]="field.key"
+        class="field-label"
+        [class.required]="field.required"
+      >
+        {{ field.label }}
+        <span *ngIf="field.required" class="required-indicator" aria-hidden="true">*</span>
+      </label>
+      
+      <div class="field-input-container">
+        <!-- Text Input -->
+        <input
+          *ngIf="field.type === 'text'"
+          [id]="field.key"
+          [formControlName]="field.key"
+          type="text"
+          class="form-input"
+          [placeholder]="field.placeholder || ''"
+          [attr.aria-describedby]="field.description ? field.key + '-description' : null"
+          [attr.aria-invalid]="isFieldInvalid(field.key)"
+        />
+        
+        <!-- Email Input -->
+        <input
+          *ngIf="field.type === 'email'"
+          [id]="field.key"
+          [formControlName]="field.key"
+          type="email"
+          class="form-input"
+          [placeholder]="field.placeholder || 'Enter email address'"
+          [attr.aria-describedby]="field.description ? field.key + '-description' : null"
+          [attr.aria-invalid]="isFieldInvalid(field.key)"
+          autocomplete="email"
+        />
+        
+        <!-- Password Input -->
+        <input
+          *ngIf="field.type === 'password'"
+          [id]="field.key"
+          [formControlName]="field.key"
+          type="password"
+          class="form-input"
+          [placeholder]="field.placeholder || 'Enter password'"
+          [attr.aria-describedby]="field.description ? field.key + '-description' : null"
+          [attr.aria-invalid]="isFieldInvalid(field.key)"
+          autocomplete="current-password"
+        />
+        
+        <!-- Number Input -->
+        <input
+          *ngIf="field.type === 'number'"
+          [id]="field.key"
+          [formControlName]="field.key"
+          type="number"
+          class="form-input"
+          [placeholder]="field.placeholder || '0'"
+          [attr.aria-describedby]="field.description ? field.key + '-description' : null"
+          [attr.aria-invalid]="isFieldInvalid(field.key)"
+        />
+        
+        <!-- Select Dropdown -->
+        <select
+          *ngIf="field.type === 'select'"
+          [id]="field.key"
+          [formControlName]="field.key"
+          class="form-select"
+          [attr.aria-describedby]="field.description ? field.key + '-description' : null"
+          [attr.aria-invalid]="isFieldInvalid(field.key)"
+        >
+          <option value="" disabled>{{ field.placeholder || 'Select an option' }}</option>
+          <option
+            *ngFor="let option of field.options; trackBy: trackByIndex"
+            [value]="option.value"
+            [disabled]="option.disabled"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+        
+        <!-- Checkbox -->
+        <div *ngIf="field.type === 'checkbox'" class="checkbox-container">
+          <input
+            [id]="field.key"
+            [formControlName]="field.key"
+            type="checkbox"
+            class="form-checkbox"
+            [attr.aria-describedby]="field.description ? field.key + '-description' : null"
+            [attr.aria-invalid]="isFieldInvalid(field.key)"
+          />
+          <label [for]="field.key" class="checkbox-label">
+            {{ field.placeholder || field.label }}
+          </label>
+        </div>
+        
+        <!-- Textarea -->
+        <textarea
+          *ngIf="field.type === 'textarea'"
+          [id]="field.key"
+          [formControlName]="field.key"
+          class="form-textarea"
+          [placeholder]="field.placeholder || ''"
+          [attr.aria-describedby]="field.description ? field.key + '-description' : null"
+          [attr.aria-invalid]="isFieldInvalid(field.key)"
+          rows="4"
+        ></textarea>
+      </div>
+      
+      <!-- Field Description -->
+      <div
+        *ngIf="field.description"
+        [id]="field.key + '-description'"
+        class="field-description"
+      >
+        {{ field.description }}
+      </div>
+      
+      <!-- Field Error -->
+      <div
+        *ngIf="isFieldInvalid(field.key)"
+        class="field-error"
+        role="alert"
+        [attr.aria-live]="'polite'"
+      >
+        {{ getFieldError(field.key) }}
+      </div>
+    </div>
+  </div>
+  
+  <!-- Form Actions -->
+  <div class="form-actions">
+    <button
+      type="submit"
+      class="btn btn-primary"
+      [disabled]="dynamicForm.invalid || isSubmitting || disabled"
+      [attr.aria-describedby]="dynamicForm.invalid ? 'form-errors' : null"
+    >
+      <span *ngIf="isSubmitting" class="loading-spinner" aria-hidden="true"></span>
+      {{ isSubmitting ? 'Submitting...' : submitButtonText }}
+    </button>
+    
+    <button
+      *ngIf="showResetButton"
+      type="button"
+      class="btn btn-secondary"
+      (click)="onReset()"
+      [disabled]="isSubmitting || disabled"
+    >
+      {{ resetButtonText }}
+    </button>
+  </div>
+  
+  <!-- Form-level Errors -->
+  <div
+    *ngIf="validationErrors.length > 0"
+    id="form-errors"
+    class="form-errors"
+    role="alert"
+    aria-live="polite"
+  >
+    <h4 class="error-title">Please correct the following errors:</h4>
+    <ul class="error-list">
+      <li *ngFor="let error of validationErrors; trackBy: trackByIndex">
+        {{ error.message }}
+      </li>
+    </ul>
+  </div>
+</form>

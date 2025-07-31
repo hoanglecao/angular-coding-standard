@@ -1,0 +1,108 @@
+<div class="user-list-container">
+  <h1>User Management</h1>
+  
+  <!-- User Creation Form -->
+  <section class="user-form-section" aria-labelledby="form-heading">
+    <h2 id="form-heading">Create New User</h2>
+    
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="user-form">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input 
+          id="name"
+          type="text"
+          formControlName="name"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('name')"
+          placeholder="Enter user name">
+        
+        <div *ngIf="isFieldInvalid('name')" class="invalid-feedback">
+          <span *ngIf="userForm.get('name')?.errors?.['required']">
+            Name is required
+          </span>
+          <span *ngIf="userForm.get('name')?.errors?.['minlength']">
+            Name must be at least 2 characters long
+          </span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          id="email"
+          type="email"
+          formControlName="email"
+          class="form-control"
+          [class.is-invalid]="isFieldInvalid('email')"
+          placeholder="Enter email address">
+        
+        <div *ngIf="isFieldInvalid('email')" class="invalid-feedback">
+          <span *ngIf="userForm.get('email')?.errors?.['required']">
+            Email is required
+          </span>
+          <span *ngIf="userForm.get('email')?.errors?.['email']">
+            Please enter a valid email address
+          </span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select 
+          id="role"
+          formControlName="role"
+          class="form-control">
+          <option *ngFor="let role of userRoles; trackBy: trackByUserId" [value]="role">
+            {{ role | titlecase }}
+          </option>
+        </select>
+      </div>
+      
+      <button 
+        type="submit" 
+        class="btn btn-primary"
+        [disabled]="userForm.invalid || isSubmitting"
+        [attr.aria-busy]="isSubmitting">
+        {{ isSubmitting ? 'Creating User...' : 'Create User' }}
+      </button>
+    </form>
+  </section>
+  
+  <!-- Users List -->
+  <section class="users-list-section" aria-labelledby="list-heading">
+    <h2 id="list-heading">Users List</h2>
+    
+    <div *ngIf="loading; else userContent" class="loading" role="status" aria-live="polite">
+      <p>Loading users...</p>
+    </div>
+    
+    <ng-template #userContent>
+      <div *ngIf="users.length > 0; else noUsers" class="users-grid">
+        <div 
+          *ngFor="let user of users; trackBy: trackByUserId"
+          class="user-card"
+          (click)="onUserSelect(user)"
+          (keydown.enter)="onUserSelect(user)"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="'Select user ' + user.name">
+          
+          <h3>{{ user.name }}</h3>
+          <p class="user-email">{{ user.email }}</p>
+          <span class="user-role" [class]="'role-' + user.role">
+            {{ user.role | titlecase }}
+          </span>
+          <span class="user-status" [class.active]="user.isActive">
+            {{ user.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
+      
+      <ng-template #noUsers>
+        <div class="no-users" role="status">
+          <p>No users found. Create your first user above.</p>
+        </div>
+      </ng-template>
+    </ng-template>
+  </section>
+</div>
